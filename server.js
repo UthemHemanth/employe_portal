@@ -53,9 +53,9 @@ app.post("/login",async(req,res)=>{
 
 })
 
-app.get("/",async(res)=>{
- res.status(200).json({message:"running"})
-})
+app.get("/register", (req, res) => {
+    res.status(200).send("hi");
+});
 
 
 app.listen(process.env.PORT,()=>{
