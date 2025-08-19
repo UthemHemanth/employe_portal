@@ -48,6 +48,7 @@ app.post("/login",async(req,res)=>{
         res.status(200).json({message:"Login Successfull",token})
     }catch(err){
         res.status(500).json({error:err.message})
+        console.log(err.message)
     }
 
 })
