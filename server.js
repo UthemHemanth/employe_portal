@@ -44,7 +44,7 @@ app.post("/login",async(req,res)=>{
         if(!verifypassword){
             return res.status(400).json({message:"Invalid Password or Username"})
         }
-        const token=jwt.sign({id:employe_member.id,email:employe_member.email},abc123,{expiresIn:"30m"})
+        const token=jwt.sign({id:employe_member.id,email:employe_member.email},"abc123",{expiresIn:"30m"})
         res.status(200).json({message:"Login Successfull",token})
     }catch(err){
         res.status(500).json({error:err.message})
