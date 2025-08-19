@@ -53,7 +53,7 @@ app.post("/login",async(req,res)=>{
 
 })
 
-app.get("/register", (req, res) => {
+app.get("/", ( res) => {
     res.status(200).send("hi");
 });
 
