@@ -48,10 +48,15 @@ app.post("/login",async(req,res)=>{
         res.status(200).json({message:"Login Successfull",token})
     }catch(err){
         res.status(500).json({error:err.message})
-        console.log(err.message)
+        console.log(err)
     }
 
 })
+
+app.get("/",async(res)=>{
+ res.status(200).json({message:"running"})
+})
+
 
 app.listen(process.env.PORT,()=>{
     console.log(`Server is running on ${process.env.PORT}`)
