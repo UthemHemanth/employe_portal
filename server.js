@@ -3,11 +3,19 @@ const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
 const pool=require("./database.js")
 const bodyparser=require("body-parser")
+const cors=require("cors")
 const { error } = require("console")
 
 require("dotenv").config()
 
 const app=express()
+
+app.use(cors({
+  origin: "http://localhost:3000",  // frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
 app.use(bodyparser.json())
 
 app.post("/register",async(req,res)=>{
@@ -53,9 +61,37 @@ app.post("/login",async(req,res)=>{
 
 })
 
-app.get("/", (req, res) => {
-    res.status(200).send("hi");
-});
+function verifytoken(req,res,next){
+    const autheader= req.headers["authorization"]
+    if(!autheader) return res.status(401).json({message:"missing Authorization header"})
+    
+        const parts= autheader.split(" ")
+        const token= parts.length===2 && parts[0] ==="Bearer"? parts[1]:null
+        if (!token) return res.status(401).json({message:"Invalid Authorization"})
+
+        try{
+            const decoded=jwt.verify(token,"abc123")
+            req.employe_member=decoded
+            next()
+
+        }catch(err){
+            res.status(401).json({error:err.message})
+
+        }
+}
+app.get("/profile",verifytoken,async(req,res)=>{
+    try{
+        const result = await pool.query("SELECT * FROM employe WHERE ID=$1",[req.employe_member.id])
+        res.status(200).json(result.rows[0])
+    }catch(err){
+        res.status(401).json({error:err.message})
+    }
+})
+
+
+// app.get("/", (req, res) => {
+//     res.status(200).send("hi");
+// });
 
 
 
