@@ -9,6 +9,7 @@ const { error } = require("console")
 require("dotenv").config()
 
 const app=express()
+//app.use(express.json())
 
 app.use(cors({
   origin: "http://localhost:3000",  // frontend URL
@@ -143,6 +144,28 @@ app.put("/update",verifytoken,async(req,res)=>{
         res.status(400).json({error:err.message})
     }
 })
+
+
+app.put("/forget-password", async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+
+    const result = await pool.query("SELECT * FROM employe WHERE email=$1", [email]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found with this email" });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query("UPDATE employe SET password=$1 WHERE email=$2", [hashedPassword,email]);
+    res.status(200).json({ message: "Password updated successfully. Please login with your new password." });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+  //console.log("Forget-password route hit!");
+
+});
 
 
 
