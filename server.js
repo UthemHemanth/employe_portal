@@ -13,7 +13,7 @@ const app=express()
 
 app.use(cors({
   origin: "http://localhost:3000",  // frontend URL
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE"],       
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
@@ -30,6 +30,11 @@ app.post("/register",async(req,res)=>{
         
         if (exsistinguser.rows.length>0){
             return res.status(401).json({message:"User already registered"})
+        }
+
+        const exsistingusername=await pool.query("SELECT * FROM employe WHERE name=$1",[name])
+        if (exsistingusername.rows.length>0){
+            return res.status(400).json({message:"Username already taken"})
         }
 
         const hashedpassword=await bcrypt.hash(password,10)
@@ -163,8 +168,6 @@ app.put("/forget-password", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-  //console.log("Forget-password route hit!");
-
 });
 
 
