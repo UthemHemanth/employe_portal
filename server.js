@@ -20,25 +20,24 @@ app.use(cors({
 app.use(bodyparser.json())
 
 app.post("/register",async(req,res)=>{
-    const {name,email,password}=req.body
+    const {name,email,password,role}=req.body
 
     try{
         if (!email.endsWith("@gmail.com")){
            return  res.status(401).json({message:"User email should end with @gmail.com"})
         }
         const exsistinguser=await pool.query( "SELECT * FROM employe WHERE email=$1",[email] )
-        
         if (exsistinguser.rows.length>0){
             return res.status(401).json({message:"User already registered"})
         }
 
         const exsistingusername=await pool.query("SELECT * FROM employe WHERE name=$1",[name])
         if (exsistingusername.rows.length>0){
-            return res.status(400).json({message:"Username already taken"})
+            return res.status(401).json({message:"Username already taken"})
         }
 
         const hashedpassword=await bcrypt.hash(password,10)
-        const data=await pool.query("INSERT INTO employe (name,email,password) VALUES ($1,$2,$3)",[name,email,hashedpassword])
+        const data=await pool.query("INSERT INTO employe (name,email,password,role) VALUES ($1,$2,$3,$4)",[name,email,hashedpassword,role])
 
         return res.status(200).json({message:"User registered successfully"})
 
@@ -61,7 +60,7 @@ app.post("/login",async(req,res)=>{
         if(!verifypassword){
             return res.status(400).json({message:"Invalid Password or Username"})
         }
-        const token=jwt.sign({id:employe_member.id,email:employe_member.email},"abc123",{expiresIn:"30m"})
+        const token=jwt.sign({id:employe_member.id,email:employe_member.email,role:employe_member.role},"abc123",{expiresIn:"30m"})
         res.status(200).json({message:"Login Successfull",token})
     }catch(err){
         res.status(500).json({error:err.message})
@@ -88,6 +87,14 @@ function verifytoken(req,res,next){
 
         }
 }
+
+function verifyAdmin(req,res,next){
+    if (req.employe_member.role !== "Admin"){
+        return res.status(400).json({message:"Admins can only access"})
+    }
+    next()
+}
+
 app.get("/profile",verifytoken,async(req,res)=>{
     try{
         const result = await pool.query("SELECT * FROM employe WHERE id=$1",[req.employe_member.id])
@@ -112,6 +119,20 @@ app.delete("/delete",verifytoken,async(req,res)=>{
         }
 })
 
+app.delete("/delete/:id",verifytoken,verifyAdmin,async(req,res)=>{
+    const {id}=req.params
+    try{
+        const result=await pool.query("DELETE FROM employe WHERE id=$1 RETURNING *",[id])
+
+        if (result.rows.length===0){
+            return res. status(400).json({message:"User not found"})
+        }
+        res.status(200).json({message:"User deleted Successfully",deleteduser:result.rows[0]})
+    }catch(err){
+        res.status(401).json({error:err.message})
+    }
+})
+
 // app.delete("/deleteByEmail", async (req, res) => {
 //   const { email } = req.body;
 
@@ -134,7 +155,7 @@ app.delete("/delete",verifytoken,async(req,res)=>{
 
 
 app.put("/update",verifytoken,async(req,res)=>{
-    const{name,email,password}=req.body
+    const{name,email,password,role}=req.body
     try{
         const result =await pool.query("SELECT * FROM employe WHERE id=$1",[req.employe_member.id])
         
@@ -142,7 +163,7 @@ app.put("/update",verifytoken,async(req,res)=>{
             return res.status(400).json({message:"USer not found"})
          }
          const hashedPassword = await bcrypt.hash(password, 10);
-        const updated= await pool.query("UPDATE employe SET name=$1, email=$2, hashedPassword=$3 WHERE id=$4 RETURNING *",[name,email,password,req.employe_member.id])
+        const updated= await pool.query("UPDATE employe SET name=$1, email=$2, password=$3, role=$4 WHERE id=$5 RETURNING *",[name,email,hashedPassword,role,req.employe_member.id])
         return res.status(200).json({message:"User details updated successfully"})
          
     }catch(err){
