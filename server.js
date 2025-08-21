@@ -66,7 +66,6 @@ app.post("/login",async(req,res)=>{
         res.status(500).json({error:err.message})
         console.log(err)
     }
-
 })
 
 function verifytoken(req,res,next){
@@ -78,13 +77,12 @@ function verifytoken(req,res,next){
         if (!token) return res.status(401).json({message:"Invalid Authorization"})
 
         try{
-            const decoded=jwt.verify(token,"abc123")
+            const decoded=jwt.verify(token,JWT_SECRET)
             req.employe_member=decoded
             next()
 
         }catch(err){
             res.status(401).json({error:err.message})
-
         }
 }
 
@@ -162,7 +160,7 @@ app.put("/update",verifytoken,async(req,res)=>{
          if (result.rows.length===0){
             return res.status(400).json({message:"USer not found"})
          }
-         const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         const updated= await pool.query("UPDATE employe SET name=$1, email=$2, password=$3, role=$4 WHERE id=$5 RETURNING *",[name,email,hashedPassword,role,req.employe_member.id])
         return res.status(200).json({message:"User details updated successfully"})
          
@@ -191,6 +189,53 @@ app.put("/forget-password", async (req, res) => {
   }
 });
 
+app.patch("/update-by",verifytoken,async(req,res)=>{
+    const {name,email,password,role}=req.body
+    try{
+        const result=await pool.query("SELECT * FROM employe WHERE id=$1",[req.employe_member.id])
+
+        if (result.rows.length===0){
+            return res.status(400).json({message:"User not found"})
+        }
+
+        let updates=[]
+        let values=[]
+        let i=1
+
+        if (name){
+            updates.push(`name=$${i}`);
+            values.push(name);
+            i++
+        }
+        if (email){
+            updates.push(`email=$${i}`);
+            values.push(email);
+            i++
+        }
+        if(password){
+            const hashedPassword=await bcrypt.hash(password,10);
+            updates.push(`password=$${i}`);
+            values.push(hashedPassword)
+            i++
+        }
+        if(role){
+            updates.push(`role=$${i}`);
+            values.push(role);
+            i++
+        }
+        if (updates.length===0){
+            return res.status(401).json({message:"Nothing is provided for update"})
+        }
+        values.push(req.employe_member.id)
+
+        const queryUpdate=`UPDATE employe SET ${updates.join(", ")} WHERE id=$${i} RETURNING *`
+        const updated=await pool.query(queryUpdate,values);
+        res.status(200).json({message:"User details updated successfully"})
+
+    }catch(err){
+        res.status(400).json({error:err.message})
+    }
+})
 
 
 app.listen(process.env.PORT,()=>{
