@@ -77,7 +77,7 @@ function verifytoken(req,res,next){
         if (!token) return res.status(401).json({message:"Invalid Authorization"})
 
         try{
-            const decoded=jwt.verify(token,JWT_SECRET)
+            const decoded=jwt.verify(token,"abc123")       
             req.employe_member=decoded
             next()
 
