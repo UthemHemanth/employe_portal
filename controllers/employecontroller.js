@@ -175,4 +175,6 @@ const partialupdate=async(req,res)=>{
     }
 }
 
+
+
 module.exports = {register, login, getprofile, selfdelete, deleteByAdmin, updateall, forgetPassword, partialupdate}

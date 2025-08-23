@@ -1,6 +1,6 @@
 const express = require("express");
-const { register, login, getprofile, selfdelete, deleteByAdmin, updateall, forgetPassword, partialupdate } = require("../controllers/controller");
-const { verifytoken,verifyAdmin } = require("../middleware/middleware");
+const { register, login, getprofile, selfdelete, deleteByAdmin, updateall, forgetPassword, partialupdate } = require("../controllers/employecontroller");
+const { verifytoken,verifyAdmin } = require("../middleware/employemiddleware");
 
 
 const router = express.Router();
