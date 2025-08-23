@@ -1,5 +1,6 @@
 const bcrypt=require("bcrypt")
 const pool=require("../database.js")
+const jwt=require("jsonwebtoken")
 
 
 const register=async(req,res)=>{
