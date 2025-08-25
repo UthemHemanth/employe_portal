@@ -7,16 +7,14 @@ const create = async(req,res)=>{
     try{
         for (const item of datalist){
             const {name,quantity,description,price,is_available,image}=item
-            const insertquery=("INSERT INTO product (name,quantity,description, price,is_available,image) VALUES ($1,$2,$3,$4,$5,$6)")
-            await pool.query(insertquery,[name,quantity,description,price,is_available])
+            const insertquery=("INSERT INTO product (name,quantity,description, price,is_available,image) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *")
+            await pool.query(insertquery,[name,quantity,description,price,is_available,image])
         }
         if (datalist.length===1){
             return res.status(200).json({message:"Product registered"})
         }else{
             return res.status(200).json({message:"Products registered"})
         }
-                     
-
 
     }catch(err){
         res.status(400).json({error:err.message})
