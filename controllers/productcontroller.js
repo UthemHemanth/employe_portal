@@ -6,8 +6,8 @@ const create = async(req,res)=>{
 
     try{
         for (const item of datalist){
-            const {name,quantity,description,price,is_available}=item
-            const insertquery=("INSERT INTO product (name,quantity,description, price,is_available) VALUES ($1,$2,$3,$4,$5)")
+            const {name,quantity,description,price,is_available,image}=item
+            const insertquery=("INSERT INTO product (name,quantity,description, price,is_available,image) VALUES ($1,$2,$3,$4,$5,$6)")
             await pool.query(insertquery,[name,quantity,description,price,is_available])
         }
         if (datalist.length===1){
@@ -53,7 +53,7 @@ const deleting=async(req,res)=>{
 
 const updating= async(req,res)=>{
     const {id}=req.params
-    const {name,quantity,description,price,is_available}=req.body
+    const {name,quantity,description,price,is_available,image}=req.body
     try{
         const result=await pool.query("SELECT * FROM PRODUCT WHERE id=$1",[id])
 
@@ -89,6 +89,11 @@ const updating= async(req,res)=>{
     if (is_available !==undefined){
         updates.push(`is_available=$${i}`)
         values.push(is_available)
+        i++
+    }
+    if (image !==undefined){
+        updates.push(`image=$${i}`)
+        values.push(image)
         i++
     }
     if (updates.length===0){
