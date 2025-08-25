@@ -169,7 +169,7 @@ const partialupdate=async(req,res)=>{
         const queryUpdate=`UPDATE employe SET ${updates.join(", ")} WHERE id=$${i} RETURNING *`
         const updated=await pool.query(queryUpdate,values);
         res.status(200).json({message:"User details updated successfully"})
-
+        
     }catch(err){
         res.status(400).json({error:err.message})
     }
