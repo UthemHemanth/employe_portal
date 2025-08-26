@@ -14,6 +14,7 @@ const create = async (req, res) => {
             message: "Items added Successfully",
             cart: result.rows[0]
         });
+        res.status
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -32,8 +33,6 @@ const read=async (req,res)=>{
 
    }catch(err){
     res.status(500).json({error:err.message})
-   
-
    }
 }
 
@@ -45,7 +44,7 @@ const deleting= async (req,res)=>{
             if (result.rows.length===0){
                 return res.status(400).json({message:"Did not found"})
             }
-            res.status(200).json({message:"Data Deleted",item:result.rows[0]})
+            res.status(200).json({message:"Data Deleted",item_deleted:result.rows[0]})
         }catch(err){
             res.status(500).json({error:err.message})
         }
@@ -75,8 +74,8 @@ const partialupdate=async (req,res)=>{
             updates.push(`quantity=$${i}`)
             values.push(quantity)
             i++
-        
         }
+
         if (updates.length===0){
             return res .status(401).json({message:"Nothing to Update"})
         }
@@ -84,8 +83,7 @@ const partialupdate=async (req,res)=>{
 
         const updatequery=`UPDATE cart SET ${updates.join(",")} WHERE id=$${i} RETURNING *`
         const update=await pool.query(updatequery,values)
-        res.status(200).json({message:"Updated Successfully"})
-
+        res.status(200).json({message:"Updated Successfully",updated_details:update.rows[0]})
 
     }catch(err){
         res.status(500).json({error:err.message})
@@ -94,4 +92,4 @@ const partialupdate=async (req,res)=>{
 
 
 
-module.exports = { create,read ,deleting,partialupdate};
+module.exports = { create, read, deleting, partialupdate};

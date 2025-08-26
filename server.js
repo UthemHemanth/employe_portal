@@ -11,6 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json())
+
 app.use("/api", router);
 
 app.use("/product",prorouter)
