@@ -9,8 +9,8 @@ function verifycart(req, res, next) {
     const parts = autheader.split(" ");
     const token = parts.length === 2 && parts[0] === "Bearer" ? parts[1] : null;
 
-    
-    console.log(token);
+
+    console.log(token); // gives token
 
     if (!token) {
         return res.status(403).json({ message: "Invalid Token" });
