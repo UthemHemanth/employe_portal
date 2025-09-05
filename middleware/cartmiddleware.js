@@ -6,7 +6,7 @@ function verifycart(req, res, next) {
 
     console.log(autheader);
 
-    const parts = autheader.split(" "); //thirfd chanhe
+    const parts = autheader.split(" "); //fourth chanhe
     const token = parts.length === 2 && parts[0] === "Bearer" ? parts[1] : null;
 
 
