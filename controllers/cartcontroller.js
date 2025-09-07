@@ -9,6 +9,7 @@ const create = async (req, res) => {
             "INSERT INTO cart (user_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *",
             [user_id, product_id, quantity]
         );
+        
 
         
         res.status(200).json({
