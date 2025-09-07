@@ -10,6 +10,7 @@ const create = async (req, res) => {
             [user_id, product_id, quantity]
         );
 
+        
         res.status(200).json({
             message: "Items added Successfully",
             cart: result.rows[0]
